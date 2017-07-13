@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import csv
 import cPickle as pickle
 import numpy.polynomial.chebyshev as cheb
+import routines.common as cm
 
 def polyval2d(x, y, m):
     order = int(np.sqrt(len(m))) - 1
@@ -16,9 +17,9 @@ def polyval2d(x, y, m):
 input_pams = np.atleast_2d(np.genfromtxt('input.list',delimiter=',', missing_values=9999.0, names=True))
 star_name = np.genfromtxt('input.list',delimiter=',', missing_values=9999.0, skip_header=1, dtype=str, usecols=0)
 
-G2_contrast_coeff = pickle.load(open('G2_contrast_2Dcoeff.pick', 'rb'))
-K5_contrast_coeff = pickle.load(open('K5_contrast_2Dcoeff.pick', 'rb'))
-G2K5_fwhm_coeff = pickle.load(open('G2K5_fwhm_1Dcoeff.pick', 'rb'))
+G2_contrast_coeff = pickle.load(open(cm.base_dir + 'G2_contrast_2Dcoeff.pick', 'rb'))
+K5_contrast_coeff = pickle.load(open(cm.base_dir + 'K5_contrast_2Dcoeff.pick', 'rb'))
+G2K5_fwhm_coeff = pickle.load(open(cm.base_dir + 'G2K5_fwhm_1Dcoeff.pick', 'rb'))
 
 teff = input_pams['Teff'][0]
 Vmag = input_pams['Vmag'][0]
@@ -36,7 +37,7 @@ gfeh[M2_sel] = 0.00
 contrast = np.zeros(np.size(teff))
 fwhm =  np.zeros(np.size(teff))
 output = np.zeros([np.size(teff),2])
-print teff[G2_sel], gfeh[G2_sel], G2_contrast_coeff
+
 contrast[G2_sel] = polyval2d(teff[G2_sel], gfeh[G2_sel], G2_contrast_coeff)
 contrast[K5_sel] = polyval2d(teff[K5_sel], gfeh[K5_sel], K5_contrast_coeff)
 contrast[M2_sel] = polyval2d(teff[M2_sel], gfeh[M2_sel], K5_contrast_coeff)
