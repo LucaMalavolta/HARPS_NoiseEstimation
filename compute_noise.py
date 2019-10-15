@@ -2,7 +2,7 @@ import numpy as np
 import itertools
 import matplotlib.pyplot as plt
 import csv
-import cPickle as pickle
+import pickle
 import numpy.polynomial.chebyshev as cheb
 import routines.common as cm
 
@@ -45,11 +45,23 @@ contrast[M2_sel] = polyval2d(teff[M2_sel], gfeh[M2_sel], K5_contrast_coeff)
 fwhm[AA_sel] = np.polyval(G2K5_fwhm_coeff,teff[AA_sel])
 
 
+#rv_noise = np.sqrt(np.sqrt(fwhm**2+vsini**2)/6.5)/(contrast/45.0)/(1.17*(39.0*np.sqrt(2.0)*10**(-0.2*(Vmag-12.0)))/91.00)*100
 
-rv_noise = np.sqrt(np.sqrt(fwhm**2+vsini**2)/6.5)/(contrast/45.0)/(1.17*(39.0*np.sqrt(2.0)*10**(-0.2*(Vmag-12.0)))/91.00)*100
+# seeing correction
+#f = 1.17 - 0.70 (theta - 1.24)
+f = 1 # we set this factor to one because we are not modelling the seeing effect
+
+# SNR as a function of exposure time:
+# s = 39 * np.sqrt( t / 1800 ) * 10 **(-0.2*(V-12))
+s = 36. * np.sqrt( 3600. / 1800. ) * 10 **(-0.2*(Vmag-12)) # rescaled factot to take into account the real efficiency of HARPS-N
+
+fwhm_observed = np.sqrt(fwhm**2+vsini**2)
+
+rv_noise = np.sqrt(fwhm_observed/6.5)/ (f*s / 91.00)
+total_noise = np.sqrt(0.4**2 + rv_noise**2)* 100.
 
 fileout = open('cal_out.dat','w')
 fileout.write('Name, Vmag, Teff, gfeh, vsini, fwhm, contrast, rv_noise\n')
-for s,v,t,g,vs,f,c,r in zip(star_name, Vmag, teff, gfeh, vsini, fwhm, contrast, rv_noise):
+for s,v,t,g,vs,f,c,r in zip(star_name, Vmag, teff, gfeh, vsini, fwhm, contrast, total_noise):
     fileout.write('{0:s}, {1:8.2f}, {2:8.2f}, {3:8.2f}, {4:8.2f}, {5:8.2f}, {6:8.2f}, {7:8.2f}\n'.format(s,v,t,g,vs,f,c,r))
 fileout.close()
