@@ -1,1 +1,1 @@
-base_dir = "/Users/malavolta/Astro/CODE/HARPS_NoiseEstimation/"
+base_dir = "/home/malavolta/CODE/HARPS_NoiseEstimation/"
